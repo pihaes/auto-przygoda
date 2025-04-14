@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoPrzygoda</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+4wB4WzL0gPExzJkN0NtvUpeoGZ4XkNf6R+f3jcCk="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-SmHtVb3S0CwNNW+ka+g9U4eM6YJ4ZQ67jSM/MG5u0XY="
+    crossorigin=""
+  ></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 60vh;
+      width: 100%;
+      z-index: 1;
+    }
+    .question-container {
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center; padding: 10px">AutoPrzygoda – Twoja podróż przez Polskę</h1>
+  <div id="map"></div>
+
+  <div id="zagadka" class="question-container" style="display:none;">
+    <h3>Co to za budowla: Ma wieże, mury i często duchy?</h3>
+    <button>Zamek</button>
+    <button>Kościół</button>
+    <button>Sklep</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const map = L.map('map').setView([51.1079, 17.0385], 6); // Centrum Polski
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+      }).addTo(map);
+
+      const miejsca = [
+        {
+          nazwa: "Stary Zamek",
+          wspolrzedne: [51.1079, 17.0385], // Wrocław
+          pytanie: "Co to za budowla: Ma wieże, mury i często duchy?",
+          poprawna: "Zamek"
+        },
+        {
+          nazwa: "Smocza Jama",
+          wspolrzedne: [50.054, 19.936], // Kraków
+          pytanie: "W której jaskini w Krakowie mieszkał smok?",
+          poprawna: "Smocza Jama"
+        }
+      ];
+
+      miejsca.forEach(miejsce => {
+        const marker = L.marker(miejsce.wspolrzedne).addTo(map);
+        marker.bindPopup(`<b>${miejsce.nazwa}</b><br>Kliknij, by rozwiązać zagadkę!`).on('click', () => {
+          pokazZagadke(miejsce.pytanie, miejsce.poprawna);
+        });
+      });
+
+      function pokazZagadke(pytanie, poprawna) {
+        document.getElementById('zagadka').style.display = 'block';
+        document.querySelector('#zagadka h3').textContent = pytanie;
+        document.querySelectorAll('#zagadka button').forEach(btn => {
+          btn.onclick = () => sprawdzOdpowiedz(btn.textContent, poprawna);
+        });
+      }
+
+      function sprawdzOdpowiedz(odpowiedz, poprawna) {
+        if (odpowiedz === poprawna) {
+          alert('Brawo! To poprawna odpowiedź.');
+        } else {
+          alert('Nie tym razem. Spróbuj jeszcze raz!');
+        }
+      }
+
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
+    });
+  </script>
+</body>
+</html>
