@@ -4,31 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AutoPrzygoda</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  ></script>
   <style>
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
       font-family: 'Comic Sans MS', cursive, sans-serif;
-      background: #f0f8ff;
+      background: #fef6e4;
     }
     h1 {
-      color: #5e3c99;
-      text-shadow: 1px 1px 2px #c4a3ff;
+      text-align: center;
+      padding: 16px;
+      color: #663399;
+      background: #ffcad4;
+      margin: 0;
     }
-    #map {
+    .map-placeholder {
       height: 60vh;
-      width: 100%;
-      z-index: 1;
-      background: #ccc;
-      border: 4px dashed #a985ff;
+      background: url('https://cdn.pixabay.com/photo/2014/04/03/10/32/map-311333_1280.png') center center no-repeat;
+      background-size: contain;
+      border: 6px dashed #ffaec0;
+      margin: 16px;
+      border-radius: 16px;
     }
     .question-container {
       padding: 20px;
@@ -39,7 +36,7 @@
       box-shadow: 0 0 12px rgba(173, 128, 255, 0.3);
     }
     button {
-      margin-top: 10px;
+      margin: 6px;
       padding: 10px 16px;
       font-size: 16px;
       border: none;
@@ -59,97 +56,68 @@
   </style>
 </head>
 <body>
-  <h1 style="text-align:center; padding: 10px">AutoPrzygoda – Twoja podróż przez Polskę</h1>
-  <div id="map"></div>
+  <h1>AutoPrzygoda – Twoja bajkowa podróż przez Polskę</h1>
+  <div class="map-placeholder"></div>
 
-  <div id="zagadka" class="question-container" style="display:none;">
-    <h3>Co to za budowla: Ma wieże, mury i często duchy?</h3>
-    <button>Zamek</button>
-    <button>Kościół</button>
-    <button>Sklep</button>
+  <div id="zagadka" class="question-container">
+    <h3 id="pytanie">Jak nazywa się znana zabytkowa kopalnia w Zabrzu?</h3>
+    <div id="odpowiedzi">
+      <button onclick="sprawdzOdpowiedz(this.innerText)">Kopalnia Guido</button>
+      <button onclick="sprawdzOdpowiedz(this.innerText)">Wieliczka</button>
+      <button onclick="sprawdzOdpowiedz(this.innerText)">Złoty Stok</button>
+    </div>
+    <br>
+    <button onclick="nastepnaZagadka()">➡️ Następna zagadka</button>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const map = L.map('map').setView([50.7, 18.5], 7);
+    const zagadki = [
+      {
+        pytanie: "Jak nazywa się znana zabytkowa kopalnia w Zabrzu?",
+        poprawna: "Kopalnia Guido",
+        odpowiedzi: ["Kopalnia Guido", "Wieliczka", "Złoty Stok"]
+      },
+      {
+        pytanie: "Jak nazywa się duże jezioro na Śląsku?",
+        poprawna: "Jezioro Goczałkowickie",
+        odpowiedzi: ["Jezioro Czorsztyńskie", "Jezioro Goczałkowickie", "Jezioro Zegrzyńskie"]
+      },
+      {
+        pytanie: "Co porasta obszary między Opolem a Kluczborkiem?",
+        poprawna: "Lasy",
+        odpowiedzi: ["Pustynie", "Lasy", "Bagna"]
+      }
+    ];
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap',
-      }).addTo(map);
+    let index = 0;
 
-      const miejsca = [
-        {
-          nazwa: "Stary Zamek",
-          wspolrzedne: [51.1079, 17.0385],
-          pytanie: "Co to za budowla: Ma wieże, mury i często duchy?",
-          poprawna: "Zamek"
-        },
-        {
-          nazwa: "Smocza Jama",
-          wspolrzedne: [50.054, 19.936],
-          pytanie: "W której jaskini w Krakowie mieszkał smok?",
-          poprawna: "Smocza Jama"
-        },
-        {
-          nazwa: "Jezioro Goczałkowickie",
-          wspolrzedne: [49.938, 18.811],
-          pytanie: "Jak nazywa się duży zbiornik wodny niedaleko Bielska-Białej?",
-          poprawna: "Jezioro Goczałkowickie"
-        },
-        {
-          nazwa: "Lasy koło Opola",
-          wspolrzedne: [50.675, 17.906],
-          pytanie: "Co porasta duży obszar między Opolem a Kluczborkiem?",
-          poprawna: "Lasy"
-        },
-        {
-          nazwa: "Kopalnia Guido",
-          wspolrzedne: [50.293, 18.787],
-          pytanie: "Jak nazywa się znana zabytkowa kopalnia w Zabrzu?",
-          poprawna: "Kopalnia Guido"
-        }
-      ];
-
-      miejsca.forEach(miejsce => {
-        const marker = L.marker(miejsce.wspolrzedne).addTo(map);
-        marker.bindPopup(`<b>${miejsce.nazwa}</b><br>Kliknij, by rozwiązać zagadkę!`).on('click', () => {
-          pokazZagadke(miejsce.pytanie, miejsce.poprawna);
-        });
+    function pokazZagadka() {
+      const z = zagadki[index];
+      document.getElementById("pytanie").innerText = z.pytanie;
+      const kontener = document.getElementById("odpowiedzi");
+      kontener.innerHTML = "";
+      z.odpowiedzi.forEach(o => {
+        const btn = document.createElement("button");
+        btn.innerText = o;
+        btn.onclick = () => sprawdzOdpowiedz(o);
+        kontener.appendChild(btn);
       });
+    }
 
-      // Rysowanie trasy przerywaną linią
-      const punktyTrasy = miejsca.map(m => m.wspolrzedne);
-      const trasa = L.polyline(punktyTrasy, {
-        color: 'purple',
-        weight: 4,
-        opacity: 0.7,
-        dashArray: '10,10'
-      }).addTo(map);
-
-      function pokazZagadke(pytanie, poprawna) {
-        const zagadkaDiv = document.getElementById('zagadka');
-        zagadkaDiv.style.display = 'block';
-        zagadkaDiv.classList.remove('fade');
-        void zagadkaDiv.offsetWidth;
-        zagadkaDiv.classList.add('fade');
-        document.querySelector('#zagadka h3').textContent = pytanie;
-        document.querySelectorAll('#zagadka button').forEach(btn => {
-          btn.onclick = () => sprawdzOdpowiedz(btn.textContent, poprawna);
-        });
+    function sprawdzOdpowiedz(odp) {
+      if (odp === zagadki[index].poprawna) {
+        alert("Brawo! To poprawna odpowiedź.");
+      } else {
+        alert("Nie tym razem. Spróbuj jeszcze raz!");
       }
+    }
 
-      function sprawdzOdpowiedz(odpowiedz, poprawna) {
-        if (odpowiedz === poprawna) {
-          alert('Brawo! To poprawna odpowiedź.');
-        } else {
-          alert('Nie tym razem. Spróbuj jeszcze raz!');
-        }
-      }
+    function nastepnaZagadka() {
+      index = (index + 1) % zagadki.length;
+      pokazZagadka();
+    }
 
-      setTimeout(() => {
-        map.invalidateSize();
-      }, 100);
-    });
+    document.addEventListener("DOMContentLoaded", pokazZagadka);
   </script>
 </body>
 </html>
