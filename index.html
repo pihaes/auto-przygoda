@@ -26,6 +26,7 @@
     .question-container {
       padding: 20px;
       background: #f9f9f9;
+      animation: fadeIn 0.5s ease-in-out;
     }
     button {
       margin-top: 10px;
@@ -39,6 +40,10 @@
     }
     button:hover {
       background-color: #0056b3;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -55,7 +60,7 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const map = L.map('map').setView([51.1079, 17.0385], 6); // Centrum Polski
+      const map = L.map('map').setView([51.1079, 17.0385], 7);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap',
@@ -73,6 +78,24 @@
           wspolrzedne: [50.054, 19.936], // Kraków
           pytanie: "W której jaskini w Krakowie mieszkał smok?",
           poprawna: "Smocza Jama"
+        },
+        {
+          nazwa: "Jezioro Goczałkowickie",
+          wspolrzedne: [49.938, 18.811],
+          pytanie: "Jak nazywa się duży zbiornik wodny niedaleko Bielska-Białej?",
+          poprawna: "Jezioro Goczałkowickie"
+        },
+        {
+          nazwa: "Lasy koło Opola",
+          wspolrzedne: [50.675, 17.906],
+          pytanie: "Co porasta duży obszar między Opolem a Kluczborkiem?",
+          poprawna: "Lasy"
+        },
+        {
+          nazwa: "Kopalnia Guido",
+          wspolrzedne: [50.293, 18.787],
+          pytanie: "Jak nazywa się znana zabytkowa kopalnia w Zabrzu?",
+          poprawna: "Kopalnia Guido"
         }
       ];
 
@@ -84,7 +107,11 @@
       });
 
       function pokazZagadke(pytanie, poprawna) {
-        document.getElementById('zagadka').style.display = 'block';
+        const zagadkaDiv = document.getElementById('zagadka');
+        zagadkaDiv.style.display = 'block';
+        zagadkaDiv.classList.remove('fade');
+        void zagadkaDiv.offsetWidth; // restart animacji
+        zagadkaDiv.classList.add('fade');
         document.querySelector('#zagadka h3').textContent = pytanie;
         document.querySelectorAll('#zagadka button').forEach(btn => {
           btn.onclick = () => sprawdzOdpowiedz(btn.textContent, poprawna);
