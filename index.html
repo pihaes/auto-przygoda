@@ -16,30 +16,41 @@
       height: 100%;
       margin: 0;
       padding: 0;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: #f0f8ff;
+    }
+    h1 {
+      color: #5e3c99;
+      text-shadow: 1px 1px 2px #c4a3ff;
     }
     #map {
       height: 60vh;
       width: 100%;
       z-index: 1;
       background: #ccc;
+      border: 4px dashed #a985ff;
     }
     .question-container {
       padding: 20px;
-      background: #f9f9f9;
+      background: #fff0f5;
       animation: fadeIn 0.5s ease-in-out;
+      border-radius: 16px;
+      margin: 16px;
+      box-shadow: 0 0 12px rgba(173, 128, 255, 0.3);
     }
     button {
       margin-top: 10px;
       padding: 10px 16px;
       font-size: 16px;
       border: none;
-      border-radius: 8px;
-      background-color: #007bff;
+      border-radius: 12px;
+      background-color: #ff69b4;
       color: white;
       cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #ff1493;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -60,7 +71,7 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const map = L.map('map').setView([51.1079, 17.0385], 7);
+      const map = L.map('map').setView([50.7, 18.5], 7);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap',
@@ -69,13 +80,13 @@
       const miejsca = [
         {
           nazwa: "Stary Zamek",
-          wspolrzedne: [51.1079, 17.0385], // Wrocław
+          wspolrzedne: [51.1079, 17.0385],
           pytanie: "Co to za budowla: Ma wieże, mury i często duchy?",
           poprawna: "Zamek"
         },
         {
           nazwa: "Smocza Jama",
-          wspolrzedne: [50.054, 19.936], // Kraków
+          wspolrzedne: [50.054, 19.936],
           pytanie: "W której jaskini w Krakowie mieszkał smok?",
           poprawna: "Smocza Jama"
         },
@@ -106,11 +117,20 @@
         });
       });
 
+      // Rysowanie trasy przerywaną linią
+      const punktyTrasy = miejsca.map(m => m.wspolrzedne);
+      const trasa = L.polyline(punktyTrasy, {
+        color: 'purple',
+        weight: 4,
+        opacity: 0.7,
+        dashArray: '10,10'
+      }).addTo(map);
+
       function pokazZagadke(pytanie, poprawna) {
         const zagadkaDiv = document.getElementById('zagadka');
         zagadkaDiv.style.display = 'block';
         zagadkaDiv.classList.remove('fade');
-        void zagadkaDiv.offsetWidth; // restart animacji
+        void zagadkaDiv.offsetWidth;
         zagadkaDiv.classList.add('fade');
         document.querySelector('#zagadka h3').textContent = pytanie;
         document.querySelectorAll('#zagadka button').forEach(btn => {
